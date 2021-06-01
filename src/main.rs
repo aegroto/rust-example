@@ -1,7 +1,5 @@
 use std::env;
 
-use crate::analytics::calculate_hidden_values_frequencies;
-
 mod load;
 mod types;
 mod analytics;
@@ -17,7 +15,11 @@ fn main() {
         Err(_) => panic!("Input parsing error")
     };
 
-    let hidden_values_frequencies = calculate_hidden_values_frequencies(&entries); 
+    println!("Calculating some analytics...");
 
+    let hidden_values_frequencies = analytics::calculate_hidden_values_frequencies(&entries); 
     println!("Hidden values frequencies: {:?}", hidden_values_frequencies);
+
+    let alterations = analytics::calculate_alterations(&entries);
+    println!("Alterations: {}/{}", alterations, entries.len());
 }

@@ -13,3 +13,10 @@ pub fn calculate_hidden_value_frequency(entries: &Vec<Entry>, value: u8) -> usiz
         .filter(|entry| entry.hidden_value == value)
         .count()
 }
+
+pub fn calculate_alterations(entries: &Vec<Entry>) -> usize {
+    entries
+        .into_iter()
+        .filter(|entry| entry.angle != entry.new_angle)
+        .count()
+}
