@@ -17,5 +17,7 @@ fn main() {
         Err(_) => panic!("Input parsing error")
     };
 
-    println!("Hidden values frequencies: {:?}", calculate_hidden_values_frequencies(&entries));
+    let hidden_values_frequencies = calculate_hidden_values_frequencies(&entries); 
+
+    println!("Hidden values frequencies: {:?}", hidden_values_frequencies);
 }
