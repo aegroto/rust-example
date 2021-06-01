@@ -7,8 +7,7 @@ use std::num::ParseIntError;
 use crate::types::Entry;
 
 pub fn load_entries_from_file(filename: &str) -> Result<Vec<Entry>, ParseIntError> {
-    let file = File::open(filename)
-                    .expect("Cannot open input file");
+    let file = File::open(filename).expect("Cannot open input file");
 
     let reader = BufReader::new(file);
 
@@ -25,7 +24,7 @@ pub fn load_entries_from_file(filename: &str) -> Result<Vec<Entry>, ParseIntErro
         let entry = Entry {
             angle: value_parser(fragments[0])?,
             new_angle: value_parser(fragments[1])?,
-            hidden_value: value_parser(fragments[2])?
+            hidden_value: value_parser(fragments[2])?,
         };
 
         entries.push(entry);

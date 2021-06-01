@@ -1,9 +1,9 @@
 use std::env;
 
-use std::sync::Arc;
 use std::sync::mpsc;
 use std::sync::mpsc::Receiver;
 use std::sync::mpsc::Sender;
+use std::sync::Arc;
 use std::thread;
 use std::thread::JoinHandle;
 
@@ -11,9 +11,9 @@ use types::Entry;
 
 use crate::types::AnalyticsMessageData;
 
+mod analytics;
 mod load;
 mod types;
-mod analytics;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -23,15 +23,14 @@ fn main() {
 
     let entries = match load::load_entries_from_file(filename) {
         Ok(entries) => entries,
-        Err(_) => panic!("Input parsing error")
+        Err(_) => panic!("Input parsing error"),
     };
 
     println!("Calculating some analytics...");
     calculate_analytics_async(Arc::new(entries));
 }
 
-
-fn calculate_analytics_async(entries: Arc<Vec<Entry>>){
+fn calculate_analytics_async(entries: Arc<Vec<Entry>>) {
     let (sender, receiver) = mpsc::channel();
 
     let display_handle = spawn_display_thread(receiver);
@@ -50,42 +49,50 @@ fn calculate_analytics_async(entries: Arc<Vec<Entry>>){
 
         display_handle.join().unwrap();
 
-        println!("[Helmsthread] All of the threads have terminated, I'm gonna have a rest as well.");
+        println!(
+            "[Helmsthread] All of the threads have terminated, I'm gonna have a rest as well."
+        );
     });
 
     helmsthread.join().unwrap();
 }
 
-fn spawn_hvf_thread(entries: Arc<Vec<Entry>>, sender: Sender<AnalyticsMessageData>) -> JoinHandle<()> {
+fn spawn_hvf_thread(
+    entries: Arc<Vec<Entry>>,
+    sender: Sender<AnalyticsMessageData>,
+) -> JoinHandle<()> {
     thread::spawn(move || {
-        let hvf = analytics::calculate_hidden_values_frequencies(&entries); 
-        sender.send(AnalyticsMessageData::HiddenValuesFrequencies(hvf))
-              .expect("[HVF] Unable to send hidden values frequencies");
+        let hvf = analytics::calculate_hidden_values_frequencies(&entries);
+        sender
+            .send(AnalyticsMessageData::HiddenValuesFrequencies(hvf))
+            .expect("[HVF] Unable to send hidden values frequencies");
         println!("[HVF] Calculated hidden values frequencies.");
     })
 }
 
-fn spawn_alterations_thread(entries: Arc<Vec<Entry>>, sender: Sender<AnalyticsMessageData>) -> JoinHandle<()> {
+fn spawn_alterations_thread(
+    entries: Arc<Vec<Entry>>,
+    sender: Sender<AnalyticsMessageData>,
+) -> JoinHandle<()> {
     thread::spawn(move || {
-        let alterations= analytics::calculate_alterations(&entries); 
-        sender.send(AnalyticsMessageData::Alterations(alterations))
-              .expect("[Alterations] Unable to send alterations");
+        let alterations = analytics::calculate_alterations(&entries);
+        sender
+            .send(AnalyticsMessageData::Alterations(alterations))
+            .expect("[Alterations] Unable to send alterations");
         println!("[Alterations] Calculated alterations.");
     })
 }
 
 fn spawn_display_thread(receiver: Receiver<AnalyticsMessageData>) -> JoinHandle<()> {
-    thread::spawn(move || {
-        loop {
-            match receiver.recv().unwrap() {
-                AnalyticsMessageData::HiddenValuesFrequencies(v) => 
-                    println!("[Display] Hidden values frequencies: {:?}", v),
-                AnalyticsMessageData::Alterations(v) => 
-                    println!("[Display] Alterations: {:?}", v),
-                AnalyticsMessageData::Stop() => {
-                    println!("[Display] Received a 'stop' message, breaking the loop");
-                    break;
-                }
+    thread::spawn(move || loop {
+        match receiver.recv().unwrap() {
+            AnalyticsMessageData::HiddenValuesFrequencies(v) => {
+                println!("[Display] Hidden values frequencies: {:?}", v)
+            }
+            AnalyticsMessageData::Alterations(v) => println!("[Display] Alterations: {:?}", v),
+            AnalyticsMessageData::Stop() => {
+                println!("[Display] Received a 'stop' message, breaking the loop");
+                break;
             }
         }
     })
@@ -93,7 +100,7 @@ fn spawn_display_thread(receiver: Receiver<AnalyticsMessageData>) -> JoinHandle<
 
 #[allow(dead_code)]
 fn calculate_analytics_sync(entries: &Vec<Entry>) {
-    let hidden_values_frequencies = analytics::calculate_hidden_values_frequencies(entries); 
+    let hidden_values_frequencies = analytics::calculate_hidden_values_frequencies(entries);
     let alterations = analytics::calculate_alterations(entries);
 
     println!("Hidden values frequencies: {:?}", hidden_values_frequencies);
