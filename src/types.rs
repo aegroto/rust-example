@@ -6,6 +6,10 @@ pub enum AnalyticsMessageData {
     Stop(),
 }
 
+pub trait Alterable {
+    fn is_altered(&self) -> bool;
+}
+
 pub struct Entry {
     pub angle: u8,
     pub new_angle: u8,
@@ -19,5 +23,11 @@ impl fmt::Display for Entry {
             "({}, {}, {})",
             self.angle, self.new_angle, self.hidden_value
         )
+    }
+}
+
+impl Alterable for Entry {
+    fn is_altered(&self) -> bool {
+        self.angle != self.new_angle
     }
 }

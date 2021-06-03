@@ -1,4 +1,4 @@
-use crate::types::Entry;
+use crate::types::{Alterable, Entry};
 
 use rayon::prelude::*;
 
@@ -20,6 +20,13 @@ pub fn calculate_alterations(entries: &Vec<Entry>) -> usize {
     entries
         .into_iter()
         .filter(|entry| entry.angle != entry.new_angle)
+        .count()
+}
+
+pub fn calculate_alterations_using_trait(alterables: &Vec<Box<dyn Alterable>>) -> usize {
+    alterables 
+        .into_iter()
+        .filter(|entry| entry.is_altered())
         .count()
 }
 

@@ -9,6 +9,7 @@ use std::thread::JoinHandle;
 
 use types::Entry;
 
+use crate::types::Alterable;
 use crate::types::AnalyticsMessageData;
 
 mod analytics;
@@ -29,6 +30,13 @@ fn main() {
     println!("Calculating some analytics...");
     calculate_analytics_async(Arc::new(entries));
     // calculate_analytics_parallel(&entries);
+
+    /*let mut alterable_vec: Vec<Box<dyn Alterable>> = Vec::new();
+    entries
+        .into_iter()
+        .for_each(|entry| alterable_vec.push(Box::new(entry)));
+
+    println!("{}", analytics::calculate_alterations_using_trait(&alterable_vec));*/
 }
 
 #[allow(dead_code)]
@@ -109,10 +117,10 @@ fn calculate_analytics_sync(entries: &Vec<Entry>) {
     println!("Alterations: {}/{}", alterations, entries.len());
 }
 
-
 #[allow(dead_code)]
 fn calculate_analytics_parallel(entries: &Vec<Entry>) {
-    let hidden_values_frequencies = analytics::parallel_calculate_hidden_values_frequencies(entries);
+    let hidden_values_frequencies =
+        analytics::parallel_calculate_hidden_values_frequencies(entries);
     let alterations = analytics::parallel_calculate_alterations(entries);
 
     println!("Hidden values frequencies: {:?}", hidden_values_frequencies);
